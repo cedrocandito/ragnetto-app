@@ -25,7 +25,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
 {
     private static final String TAG = "RJA";
     private static final String BUNDLE_ID_SENSOR_ACTIVE = "sensorActive";
-    private static final int JOYSTICK_POLLING_INTERVAL = 100;
+    private static final int JOYSTICK_POLLING_INTERVAL = 50;
     private static final String SWAP_CONTROLS_PREFERENCE_KEY = "invert_rotation_sidestep";
 
     private Menu menu;
