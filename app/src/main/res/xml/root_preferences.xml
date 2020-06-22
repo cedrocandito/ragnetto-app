@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="invert_rotation_sidestep"
+        app:summaryOff="@string/setting_invert_summary_on"
+        app:summaryOn="@string/setting_invert_summary_off"
+        app:title="@string/setting_invert_rotation_sidestep" />
+
+</PreferenceScreen>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" height="297mm" id="svg8"
+    version="1.1" viewBox="0 0 210 297" width="210mm" xmlns="http://www.w3.org/2000/svg"
+    inkscape:version="1.0 (4035a4fb49, 2020-05-01)" sodipodi:docname="icon_plug_barred.svg">
+    <defs id="defs2" />
+    <sodipodi:namedview bordercolor="#666666" borderopacity="1.0" id="base" pagecolor="#ffffff"
+        showgrid="true" inkscape:current-layer="layer1" inkscape:cx="121.54713"
+        inkscape:cy="72.524419" inkscape:document-rotation="0" inkscape:document-units="mm"
+        inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="11.2">
+        <inkscape:grid id="grid4506" spacingx="1.3229167" spacingy="1.3229167" type="xygrid" />
+    </sodipodi:namedview>
+    <metadata id="metadata5">
+        <rdf:RDF>
+            <cc:Work rdf:about="">
+                <dc:format>image/svg+xml</dc:format>
+                <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+                <dc:title></dc:title>
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <g id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+        <path
+            style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+            d="M 125 37.519531 A 35.000001 35.000001 0 0 0 106.93555 42.542969 L 160 102.92969 L 160 92.519531 L 185 92.519531 L 185 87.519531 L 160 87.519531 L 160 72.519531 A 35.000001 35.000001 0 0 0 160 72.265625 L 160 57.519531 L 185 57.519531 L 185 52.519531 L 160 52.519531 L 160 37.519531 L 125 37.519531 z M 99.191406 48.878906 A 35.000001 35.000001 0 0 0 90 72.519531 A 35.000001 35.000001 0 0 0 125 107.51953 L 125.25586 107.51953 L 150.7207 107.51953 L 99.191406 48.878906 z "
+            id="path4518" transform="scale(0.26458333)"
+            inkscape:export-filename="C:\Users\Davide\Desktop\ic_disconnect.png"
+            inkscape:export-xdpi="507.29999" inkscape:export-ydpi="507.29999" />
+    </g>
+</svg>

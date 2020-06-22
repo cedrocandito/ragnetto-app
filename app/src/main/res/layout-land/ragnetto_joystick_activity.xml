@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    tools:context=".RagnettoJoystickActivity">
+
+    <include
+        layout="@layout/include_numbers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Note: if layout width and height are not defined in the include command,
+    other attribute overrides are ignored -->
+
+    <it.davideorlandi.ragnetto.JoystickView
+        android:id="@+id/primaryJoystick"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="@dimen/joystick_padding"
+        app:gridBackgroundColor="@color/joystick_background"
+        app:gridForegroundColor="@color/joystick_grid"
+        app:gridForegroundStrokeWidth="@dimen/joystick_stroke_width"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/secondaryJoystick"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".5"
+        app:stickColor="@color/stick"
+        app:stickSize="@dimen/stick_size"
+        app:type="xy" />
+
+    <it.davideorlandi.ragnetto.JoystickView
+        android:id="@+id/secondaryJoystick"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="@dimen/joystick_padding"
+        app:gridBackgroundColor="@color/joystick_background"
+        app:gridForegroundColor="@color/joystick_grid"
+        app:gridForegroundStrokeWidth="@dimen/joystick_stroke_width"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent=".4"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".5"
+        app:stickColor="@color/stick"
+        app:stickSize="@dimen/stick_size"
+        app:type="x" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

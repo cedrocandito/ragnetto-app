@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="JoystickView">
+        <!-- foreground color of the grid -->
+        <attr name="gridForegroundColor" format="color" />
+        <!-- background color of the grid -->
+        <attr name="gridBackgroundColor" format="color" />
+        <!-- width of the grid lines -->
+        <attr name="gridForegroundStrokeWidth" format="dimension" />
+        <!-- color of the stick circle -->
+        <attr name="stickColor" format="color" />
+        <!-- size of the stick circle -->
+        <attr name="stickSize" format="dimension" />
+        <!-- type of joystick: both axes, only x, only y -->
+        <attr name="type" format="enum">
+            <enum name="x" value="1" />
+            <enum name="y" value="2" />
+            <enum name="xy" value="3" />
+        </attr>
+    </declare-styleable>
+</resources>

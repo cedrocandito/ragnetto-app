@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:elevation="10sp"
+    android:orientation="vertical"
+    tools:showIn="@layout/ragnetto_joystick_activity">
+
+    <TextView
+        android:id="@+id/txt_speed_forward"
+        android:layout_width="@dimen/number_width"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_arrow_vertical"
+        android:foregroundTint="#FFFFFF"
+        android:gravity="center_vertical|end"
+        android:paddingStart="4sp"
+        android:paddingEnd="4sp"
+        android:singleLine="true"
+        android:textAlignment="inherit"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/txt_speed_rotation"
+        android:layout_width="@dimen/number_width"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_arrow_rotation"
+        android:gravity="center_vertical|end"
+        android:paddingStart="4sp"
+        android:paddingEnd="4sp"
+        android:singleLine="true"
+        android:text="zzz"
+        android:textAlignment="gravity"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/txt_speed_side"
+        android:layout_width="@dimen/number_width"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_arrow_horizontal"
+        android:gravity="center_vertical|end"
+        android:paddingStart="4sp"
+        android:paddingEnd="4sp"
+        android:singleLine="true"
+        android:textAlignment="gravity"
+        android:textSize="18sp" />
+</LinearLayout>
