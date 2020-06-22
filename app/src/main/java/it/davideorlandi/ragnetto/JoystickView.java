@@ -200,6 +200,7 @@ public class JoystickView extends View implements SensorEventListener
             {
                 stick_x = 0f;
                 stick_y = 0f;
+                invalidate();
             }
         }
     }
@@ -254,7 +255,7 @@ public class JoystickView extends View implements SensorEventListener
                     stick_x = (event.getX() - cx) * END_OF_SCALE / r;
 
                 if (type == TYPE_XY || type == TYPE_Y)
-                    stick_y = (event.getY() - cy) * END_OF_SCALE / r;
+                    stick_y = -(event.getY() - cy) * END_OF_SCALE / r;
 
                 clampStickToRadius();
                 break;
@@ -285,7 +286,7 @@ public class JoystickView extends View implements SensorEventListener
     protected void onDraw(Canvas canvas)
     {
         drawGrid(canvas);
-        canvas.drawCircle(stick_x * r / END_OF_SCALE + cx, stick_y * r / END_OF_SCALE + cy, stickSize, stickPaint);
+        canvas.drawCircle(stick_x * r / END_OF_SCALE + cx, -stick_y * r / END_OF_SCALE + cy, stickSize, stickPaint);
     }
 
     protected void drawGrid(Canvas canvas)
@@ -350,10 +351,10 @@ public class JoystickView extends View implements SensorEventListener
         SensorManager.getRotationMatrixFromVector(m, event.values);
         float[] azimuthPitchRoll = new float[3];
         SensorManager.getOrientation(m, azimuthPitchRoll);
-        Log.v(TAG, String.format("Azimuth=%.02f, Pitch=%.02f, Roll=%.02f", azimuthPitchRoll[0], azimuthPitchRoll[1], azimuthPitchRoll[2]));
+
         if (!touching)
         {
-            float pitch = -azimuthPitchRoll[1] - QUARTER_PI;
+            float pitch = azimuthPitchRoll[1] + QUARTER_PI;
             float roll = azimuthPitchRoll[2];
 
             stick_x = roll * END_OF_SCALE / QUARTER_PI;
