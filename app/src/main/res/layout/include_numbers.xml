@@ -30,7 +30,6 @@
         android:paddingStart="4sp"
         android:paddingEnd="4sp"
         android:singleLine="true"
-        android:text="zzz"
         android:textAlignment="gravity"
         android:textSize="18sp" />
 

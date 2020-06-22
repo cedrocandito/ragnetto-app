@@ -2,13 +2,18 @@ package it.davideorlandi.ragnetto;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -20,9 +25,18 @@ public class RagnettoJoystickActivity extends AppCompatActivity
 {
     private static final String TAG = "RJA";
     private static final String BUNDLE_ID_SENSOR_ACTIVE = "sensorActive";
+    private static final int JOYSTICK_POLLING_INTERVAL = 100;
+    private static final String SWAP_CONTROLS_PREFERENCE_KEY = "invert_rotation_sidestep";
+
     private Menu menu;
     private JoystickView primaryJoystick;
+    private JoystickView secondaryJoystick;
+    private TextView txtForward;
+    private TextView txtSidestep;
+    private TextView txtRotation;
+    private boolean swapControls;
     private boolean sensorActive = false;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -31,6 +45,10 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ragnetto_joystick_activity);
         primaryJoystick = findViewById(R.id.primaryJoystick);
+        secondaryJoystick = findViewById(R.id.secondaryJoystick);
+        txtForward = findViewById(R.id.txt_speed_forward);
+        txtRotation = findViewById(R.id.txt_speed_rotation);
+        txtSidestep = findViewById(R.id.txt_speed_side);
 
         if (savedInstanceState != null)
         {
@@ -49,7 +67,6 @@ public class RagnettoJoystickActivity extends AppCompatActivity
            File->Invalidate caches/restart. Android studio è una
            vera merda! */
         getMenuInflater().inflate(R.menu.menu_joystick, menu);
-
 
         if (primaryJoystick.isSensorAvailable())
         {
@@ -70,6 +87,44 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         Log.v(TAG, "onResume");
         super.onResume();
         resumeSensor();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        swapControls = prefs.getBoolean(SWAP_CONTROLS_PREFERENCE_KEY, false);
+        handler = new Handler(Looper.getMainLooper());
+
+        handler.postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    final float y = primaryJoystick.getStickY();
+                    final float xpri = primaryJoystick.getStickX();
+                    final float xsec = secondaryJoystick.getStickX();
+                    final float x, r;
+
+                    if (swapControls)
+                    {
+                        x = xpri;
+                        r = xsec;
+                    }
+                    else
+                    {
+                        x = xsec;
+                        r = xpri;
+                    }
+
+                    txtForward.setText(String.format("%.0f %%", y * 100));
+                    txtSidestep.setText(String.format("%.0f %%", x * 100));
+                    txtRotation.setText(String.format("%.0f %%", r * 100));
+                } finally
+                {
+                    handler.postDelayed(this, JOYSTICK_POLLING_INTERVAL);
+                }
+
+
+            }
+        }, JOYSTICK_POLLING_INTERVAL);
     }
 
     @Override
@@ -78,6 +133,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         Log.v(TAG, "onPause");
         super.onPause();
         pauseSensor();
+        handler.removeCallbacksAndMessages(null);
     }
 
     /**

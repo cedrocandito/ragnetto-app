@@ -3,5 +3,5 @@
     <dimen name="stick_size">32dp</dimen>
     <dimen name="joystick_padding">4sp</dimen>
     <dimen name="joystick_stroke_width">3sp</dimen>
-    <dimen name="number_width">80sp</dimen>
+    <dimen name="number_width">120sp</dimen>
 </resources>
