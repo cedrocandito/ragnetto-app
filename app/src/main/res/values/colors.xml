@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- color of the action bar -->
-    <color name="colorPrimary">#E18600</color>
+    <color name="colorPrimary">#FD9B0B</color>
     <!-- color of status bar -->
     <color name="colorPrimaryDark">#D54E11</color>
     <!-- color of checboxes, radio buttons, etc. -->
@@ -11,5 +11,5 @@
     <color name="joystick_grid">#507DC3</color>
     <color name="stick">#B0AE2200</color>
 
-    <color name="activeIcon">#FFFFFF</color>
+    <color name="activeIcon">#008000</color>
 </resources>
