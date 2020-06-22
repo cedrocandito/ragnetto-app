@@ -8,17 +8,16 @@
         android:title="@string/connect"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/mi_disconnect"
-        android:icon="@drawable/ic_disconnect"
-        android:onClick="onMenuClickDisconnect"
-        android:title="@string/disconnect"
-        android:visible="false"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/mi_sensor"
         android:icon="@drawable/ic_sensor"
         android:onClick="onMenuClickSensor"
         android:title="@string/sensor"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/mi_tuning"
+        android:icon="@drawable/ic_tuning"
+        android:onClick="onMenuClickTuning"
+        android:title="@string/tuning"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/mi_settings"

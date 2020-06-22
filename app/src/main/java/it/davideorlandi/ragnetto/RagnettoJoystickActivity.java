@@ -96,6 +96,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
 
     public void onMenuClickSettings(MenuItem item)
     {
+        Log.d(TAG, "Settings menu clicked");
         Intent intent = new Intent(this, RagnettoSettingsActivity.class);
         startActivity(intent);
     }
@@ -104,6 +105,12 @@ public class RagnettoJoystickActivity extends AppCompatActivity
     {
         Log.d(TAG, "Sensor menu clicked - toggling sensor status");
         toggleSensor();
+    }
+
+    public void onMenuClickTuning(MenuItem item)
+    {
+        Log.d(TAG, "Tuning menu clicked");
+        // ???????? TODO
     }
 
     /**
@@ -118,6 +125,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
             updateSensorMenuItemStatus();
         }
     }
+
 
     /**
      * Stop listening to sensor and update its icon.
@@ -195,7 +203,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
                     BluetoothSerial bts = new BluetoothSerial(this);
                     bts.antani();
 
-                    //??????
+                    //?????? TODO
                     //updateConnectedStatus(true);
                 }
             }
@@ -204,7 +212,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
 
     public void onMenuClickDisconnect(MenuItem item)
     {
-        //??????????
+        //?????????? TODO
         //updateConnectedStatus(false);
     }
 
@@ -227,7 +235,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity
 
     private void updateConnectedStatus(boolean connected)
     {
+        //??????????????? TODO
         menu.findItem(R.id.mi_connect).setVisible(!connected);
-        menu.findItem(R.id.mi_disconnect).setVisible(connected);
     }
 }

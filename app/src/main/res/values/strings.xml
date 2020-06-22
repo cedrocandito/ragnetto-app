@@ -1,18 +1,24 @@
 <resources>
+    <!-- Preference -->
+    <string name="setting_invert_rotation_sidestep">Swap turn controls</string>
+    <string name="setting_invert_summary_off">Main joystick left-right controls rotation; secondary joystick controls sidestep.</string>
+    <string name="setting_invert_summary_on">Main joystick left-right controls sidestep; secondary joystick controls rotation.</string>
+
+    <!-- main -->
     <string name="app_name">Ragnetto</string>
+    <string name="title_activity_ragnetto_settings">Settings</string>
+
+    <!-- menu -->
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
-    <string name="title_activity_ragnetto_settings">Settings</string>
-    <string name="settings">Settings</string>
+    <string name="sensor">Gesture control</string>
+    <string name="tuning">Configure robot</string>
+    <string name="settings">App settings</string>
+
+    <!-- other -->
     <string name="bt_not_available_title">Bluetooth LE not available</string>
     <string name="bt_not_available_text">Bluetooth LE is not available on this device.</string>
     <string name="bt_not_available_ok">Damn!</string>
-
-    <!-- Preference -->
-    <string name="setting_invert_rotation_sidestep">Invert rotation and sidestep controls</string>
-    <string name="setting_invert_summary_off">Main joystick left-right controls rotation; secondary joystick controls sidestep.</string>
-    <string name="setting_invert_summary_on">Main joystick left-right controls sidestep; secondary joystick controls rotation.</string>
-    <string name="sensor">Control joystick with motion</string>
 
 
 </resources>
