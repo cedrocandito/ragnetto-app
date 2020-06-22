@@ -152,7 +152,7 @@ public class JoystickView extends View implements SensorEventListener
      */
     public float getStickX()
     {
-        return stick_x * END_OF_SCALE / r;
+        return stick_x;
     }
 
     /**
@@ -162,7 +162,7 @@ public class JoystickView extends View implements SensorEventListener
      */
     public float getStickY()
     {
-        return stick_y * END_OF_SCALE / r;
+        return stick_y;
     }
 
 
@@ -196,6 +196,11 @@ public class JoystickView extends View implements SensorEventListener
         {
             Log.d(TAG, "Stopping rotation sensor");
             sensorManager.unregisterListener(this, sensor);
+            if (!touching)
+            {
+                stick_x = 0f;
+                stick_y = 0f;
+            }
         }
     }
 
@@ -230,8 +235,8 @@ public class JoystickView extends View implements SensorEventListener
                 Log.wtf(TAG, "Invalid type: " + type);
         }
 
-        this.stick_x = 0;
-        this.stick_y = 0;
+        this.stick_x = 0f;
+        this.stick_y = 0f;
     }
 
     /* warning suppressed beacuse there is no "click" involved in this joystick */
@@ -246,18 +251,18 @@ public class JoystickView extends View implements SensorEventListener
                 touching = true;
             case MotionEvent.ACTION_MOVE:
                 if (type == TYPE_XY || type == TYPE_X)
-                    stick_x = event.getX() - cx;
+                    stick_x = (event.getX() - cx) * END_OF_SCALE / r;
 
                 if (type == TYPE_XY || type == TYPE_Y)
-                    stick_y = event.getY() - cy;
+                    stick_y = (event.getY() - cy) * END_OF_SCALE / r;
 
                 clampStickToRadius();
                 break;
 
             case MotionEvent.ACTION_UP:
                 touching = false;
-                stick_x = 0;
-                stick_y = 0;
+                stick_x = 0f;
+                stick_y = 0f;
                 break;
         }
 
@@ -268,9 +273,9 @@ public class JoystickView extends View implements SensorEventListener
     private void clampStickToRadius()
     {
         float stick_r = (float) Math.sqrt(stick_x * stick_x + stick_y * stick_y);
-        if (stick_r > r)
+        if (stick_r > END_OF_SCALE)
         {
-            float normalization_factor = r / stick_r;
+            float normalization_factor = END_OF_SCALE / stick_r;
             stick_x *= normalization_factor;
             stick_y *= normalization_factor;
         }
@@ -280,7 +285,7 @@ public class JoystickView extends View implements SensorEventListener
     protected void onDraw(Canvas canvas)
     {
         drawGrid(canvas);
-        canvas.drawCircle(stick_x + cx, stick_y + cy, stickSize, stickPaint);
+        canvas.drawCircle(stick_x * r / END_OF_SCALE + cx, stick_y * r / END_OF_SCALE + cy, stickSize, stickPaint);
     }
 
     protected void drawGrid(Canvas canvas)
@@ -351,17 +356,8 @@ public class JoystickView extends View implements SensorEventListener
             float pitch = -azimuthPitchRoll[1] - QUARTER_PI;
             float roll = azimuthPitchRoll[2];
 
-            stick_x = roll * r / QUARTER_PI;
-            stick_y = pitch * r / QUARTER_PI;
-
-            if (stick_x > r)
-                stick_x = r;
-            if (stick_x < -r)
-                stick_x = -r;
-            if (stick_y > r)
-                stick_y = r;
-            if (stick_y < -r)
-                stick_y = -r;
+            stick_x = roll * END_OF_SCALE / QUARTER_PI;
+            stick_y = pitch * END_OF_SCALE / QUARTER_PI;
 
             clampStickToRadius();
             invalidate();
