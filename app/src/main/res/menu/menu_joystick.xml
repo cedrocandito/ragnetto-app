@@ -8,6 +8,12 @@
         android:title="@string/connect"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/mi_disconnect"
+        android:icon="@drawable/ic_disconnect"
+        android:onClick="onMenuClickDisconnect"
+        android:title="@string/disconnect"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/mi_sensor"
         android:icon="@drawable/ic_sensor"
         android:onClick="onMenuClickSensor"

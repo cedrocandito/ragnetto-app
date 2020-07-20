@@ -1,13 +1,19 @@
 package it.davideorlandi.ragnetto;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -19,6 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import java.util.Set;
+
+import it.davideorlandi.ragnetto.service.BluetoothSerialService;
 
 
 public class RagnettoJoystickActivity extends AppCompatActivity
@@ -37,6 +47,9 @@ public class RagnettoJoystickActivity extends AppCompatActivity
     private boolean swapControls;
     private boolean sensorActive = false;
     private Handler handler;
+    private BluetoothSerialService btService;
+    private boolean btServiceBound;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -81,6 +94,59 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         return true;
     }
 
+    private ServiceConnection connection = new ServiceConnection()
+    {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service)
+        {
+            Log.v(TAG, "onServiceConnected");
+            BluetoothSerialService.RagnettoBinder binder = (BluetoothSerialService.RagnettoBinder) service;
+            btService = binder.getService();
+            btServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName className)
+        {
+            Log.v(TAG, "onServiceDisconnected");
+            btServiceBound = false;
+        }
+
+        @Override
+        public void onBindingDied(ComponentName name)
+        {
+            Log.v(TAG, "onBindingDied");
+        }
+    };
+
+    @Override
+    protected void onStop()
+    {
+        Log.v(TAG, "onStop");
+        super.onStop();
+        unbindService(connection);
+        btServiceBound = false;
+    }
+
+    @Override
+    protected void onStart()
+    {
+        Log.v(TAG, "onStart");
+        super.onStart();
+        Intent intent = new Intent(this, BluetoothSerialService.class);
+        /* start the service manually so it wont be destroyed when unbinding (which happens when the rotation changes) */
+        startService(intent);
+        // bind to the service
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        Log.v(TAG, "onDestroy");
+    }
+
     @Override
     protected void onResume()
     {
@@ -117,6 +183,12 @@ public class RagnettoJoystickActivity extends AppCompatActivity
                     txtForward.setText(String.format("%.0f %%", y * 100));
                     txtSidestep.setText(String.format("%.0f %%", x * 100));
                     txtRotation.setText(String.format("%.0f %%", r * 100));
+
+                    if (btService != null && btService.isConnected())
+                    {
+                        String command = String.format("K%d;%d;%d", (int) (y * 100f), (int) (x * 100f), (int) (-r * 100f));
+                        btService.sendCommand(command);
+                    }
                 } finally
                 {
                     handler.postDelayed(this, JOYSTICK_POLLING_INTERVAL);
@@ -169,6 +241,88 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         // ???????? TODO
     }
 
+    public void onMenuClickConnect(MenuItem item)
+    {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH))
+        {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.bt_not_available_title)
+                    .setMessage(R.string.bt_not_available_text)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.bt_not_available_ok, null)
+                    .show();
+        }
+        else
+        {
+            final BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            if (adapter == null || adapter.getBluetoothLeScanner() == null)
+            {
+                Log.wtf(TAG, "BluetoothAdapter or BluetoothLeScanner null");
+            }
+            else
+            {
+                if (adapter.isEnabled())
+                {
+                    // BT available and enabled
+                    Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
+                    if (pairedDevices.isEmpty())
+                    {
+                        new AlertDialog.Builder(this)
+                                .setTitle(R.string.bt_no_paired_device_title)
+                                .setMessage(R.string.bt_no_paired_device_text)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.bt_no_paired_device_ok, null)
+                                .show();
+                    }
+
+                    // arrays to contain device labels (needed by AlertDialog) and full data
+                    final String[] deviceNames = new String[pairedDevices.size()];
+                    final BluetoothDevice[] deviceObjects = new BluetoothDevice[pairedDevices.size()];
+
+                    int i = 0;
+                    for (BluetoothDevice device : pairedDevices)
+                    {
+                        deviceNames[i] = device.getName() + " " + device.getAddress();
+                        deviceObjects[i] = device;
+                        i++;
+                    }
+
+                    new AlertDialog.Builder(this).setTitle(R.string.bt_select_title).setItems(deviceNames, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            Log.v(TAG, "selected object " + which + ": " + deviceObjects[which]);
+                            btService.connect(deviceObjects[which]);
+                        }
+                    }).show();
+
+
+                }
+                else
+                {
+                    // bluetooth not enabled; ask to enable it
+                    Intent bton = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(bton, 1);
+                }
+            }
+        }
+    }
+
+    public void onMenuClickDisconnect(MenuItem item)
+    {
+        btService.disconnect();
+        //??????
+        //updateConnectMenuStatus();
+    }
+
+    private void updateConnectMenuStatus()
+    {
+        boolean connected = btService.isConnected();
+        menu.findItem(R.id.mi_disconnect).setVisible(connected);
+        menu.findItem(R.id.mi_connect).setVisible(!connected);
+    }
+
     /**
      * Start listening to sensor and update its icon.
      */
@@ -181,7 +335,6 @@ public class RagnettoJoystickActivity extends AppCompatActivity
             updateSensorMenuItemStatus();
         }
     }
-
 
     /**
      * Stop listening to sensor and update its icon.
@@ -228,49 +381,8 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         primaryJoystick.stopSensor();
     }
 
-    public void onMenuClickConnect(MenuItem item)
-    {
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE))
-        {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.bt_not_available_title)
-                    .setMessage(R.string.bt_not_available_text)
-                    .setNeutralButton(R.string.bt_not_available_ok, null)
-                    .show();
-        }
-        else
-        {
-            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-            if (adapter == null || adapter.getBluetoothLeScanner() == null)
-            {
-                Log.wtf(TAG, "BluetoothAdapter or BluetoothLeScanner null");
-            }
-            else
-            {
-                if (!adapter.isEnabled())
-                {
-                    // bluetooth not enabled; ask to enable it
-                    Intent bton = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(bton, 1);
-                }
-                else
-                {
-                    // BT present and enabled
-                    BluetoothSerial bts = new BluetoothSerial(this);
-                    bts.antani();
 
-                    //?????? TODO
-                    //updateConnectedStatus(true);
-                }
-            }
-        }
-    }
 
-    public void onMenuClickDisconnect(MenuItem item)
-    {
-        //?????????? TODO
-        //updateConnectedStatus(false);
-    }
 
     private void updateSensorMenuItemStatus()
     {
@@ -288,10 +400,4 @@ public class RagnettoJoystickActivity extends AppCompatActivity
 
     }
 
-
-    private void updateConnectedStatus(boolean connected)
-    {
-        //??????????????? TODO
-        menu.findItem(R.id.mi_connect).setVisible(!connected);
-    }
 }

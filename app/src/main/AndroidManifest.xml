@@ -3,16 +3,12 @@
     package="it.davideorlandi.ragnetto">
 
     <!-- connect to bluetooth -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <!-- turn on bluetooth, scan... -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <!-- BLE requires location to work because it can be used to determine the phone location -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- require bluetooth LE support available on device -->
+    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- turn on bluetooth, scan... -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- bluetooth requires location to work because it can be used to determine the phone location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- require bluetooth LE support available on device -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
-
 
     <application
         android:allowBackup="true"
@@ -21,9 +17,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".service.BluetoothSerialService"
+            android:enabled="true"
+            android:exported="false"></service>
+
         <activity
             android:name=".RagnettoSettingsActivity"
             android:label="@string/title_activity_ragnetto_settings">
+
             <!-- needed for the "back" arrow in the action bar to work -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
