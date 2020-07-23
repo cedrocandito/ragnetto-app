@@ -15,11 +15,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,7 +33,7 @@ import java.util.Set;
 import it.davideorlandi.ragnetto.service.BluetoothSerialService;
 
 
-public class RagnettoJoystickActivity extends AppCompatActivity
+public class RagnettoJoystickActivity extends AppCompatActivity implements Handler.Callback
 {
     private static final String TAG = "RJA";
     private static final String BUNDLE_ID_SENSOR_ACTIVE = "sensorActive";
@@ -47,29 +49,33 @@ public class RagnettoJoystickActivity extends AppCompatActivity
     private boolean swapControls;
     private boolean sensorActive = false;
     private Handler handler;
+    private Handler serviceCommunicationHandler;
     private BluetoothSerialService btService;
     private boolean btServiceBound;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
+    private ServiceConnection connection = new ServiceConnection()
     {
-        Log.d(TAG, "Creating activity");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.ragnetto_joystick_activity);
-        primaryJoystick = findViewById(R.id.primaryJoystick);
-        secondaryJoystick = findViewById(R.id.secondaryJoystick);
-        txtForward = findViewById(R.id.txt_speed_forward);
-        txtRotation = findViewById(R.id.txt_speed_rotation);
-        txtSidestep = findViewById(R.id.txt_speed_side);
-
-        if (savedInstanceState != null)
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service)
         {
-            sensorActive = savedInstanceState.getBoolean(BUNDLE_ID_SENSOR_ACTIVE, false);
-
-            Log.v(TAG, "Saved sensor state: " + (sensorActive ? "active" : "stopped"));
+            Log.v(TAG, "onServiceConnected");
+            BluetoothSerialService.RagnettoBinder binder = (BluetoothSerialService.RagnettoBinder) service;
+            btService = binder.getService(serviceCommunicationHandler);
+            btServiceBound = true;
         }
-    }
+
+        @Override
+        public void onServiceDisconnected(ComponentName className)
+        {
+            Log.v(TAG, "onServiceDisconnected");
+            btServiceBound = false;
+        }
+
+        @Override
+        public void onBindingDied(ComponentName name)
+        {
+            Log.v(TAG, "onBindingDied");
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -94,30 +100,27 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         return true;
     }
 
-    private ServiceConnection connection = new ServiceConnection()
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
     {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service)
-        {
-            Log.v(TAG, "onServiceConnected");
-            BluetoothSerialService.RagnettoBinder binder = (BluetoothSerialService.RagnettoBinder) service;
-            btService = binder.getService();
-            btServiceBound = true;
-        }
+        Log.d(TAG, "Creating activity");
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.ragnetto_joystick_activity);
+        primaryJoystick = findViewById(R.id.primaryJoystick);
+        secondaryJoystick = findViewById(R.id.secondaryJoystick);
+        txtForward = findViewById(R.id.txt_speed_forward);
+        txtRotation = findViewById(R.id.txt_speed_rotation);
+        txtSidestep = findViewById(R.id.txt_speed_side);
 
-        @Override
-        public void onServiceDisconnected(ComponentName className)
-        {
-            Log.v(TAG, "onServiceDisconnected");
-            btServiceBound = false;
-        }
+        serviceCommunicationHandler = new Handler(Looper.getMainLooper(), this);
 
-        @Override
-        public void onBindingDied(ComponentName name)
+        if (savedInstanceState != null)
         {
-            Log.v(TAG, "onBindingDied");
+            sensorActive = savedInstanceState.getBoolean(BUNDLE_ID_SENSOR_ACTIVE, false);
+
+            Log.v(TAG, "Saved sensor state: " + (sensorActive ? "active" : "stopped"));
         }
-    };
+    }
 
     @Override
     protected void onStop()
@@ -312,8 +315,6 @@ public class RagnettoJoystickActivity extends AppCompatActivity
     public void onMenuClickDisconnect(MenuItem item)
     {
         btService.disconnect();
-        //??????
-        //updateConnectMenuStatus();
     }
 
     private void updateConnectMenuStatus()
@@ -381,8 +382,34 @@ public class RagnettoJoystickActivity extends AppCompatActivity
         primaryJoystick.stopSensor();
     }
 
+    @Override
+    public boolean handleMessage(@NonNull Message msg)
+    {
+        switch (msg.what)
+        {
+            case BluetoothSerialService.MESSAGE_TYPE_CONNECTED:
+                Toast.makeText(this, R.string.toast_connected, Toast.LENGTH_SHORT).show();
+                updateConnectMenuStatus();
+                break;
+            case BluetoothSerialService.MESSAGE_TYPE_DISCONNECTED:
+                Toast.makeText(this, R.string.toast_disconnected, Toast.LENGTH_SHORT).show();
+                updateConnectMenuStatus();
+                break;
+            case BluetoothSerialService.MESSAGE_TYPE_UNABLE_TO_CONNECT:
+                Toast.makeText(this, R.string.toast_unable_to_connected, Toast.LENGTH_LONG).show();
+                updateConnectMenuStatus();
+                break;
+            case BluetoothSerialService.MESSAGE_TYPE_VALID_STRING_RECEIVED:
+                Log.d(TAG, "Received from Ragnetto: " + msg.obj);
+                break;
+            case BluetoothSerialService.MESSAGE_TYPE_INVALID_STRING_RECEIVED:
+                Log.w(TAG, "Invalid string received from Ragnetto: " + msg.obj);
+                break;
+            default:
+        }
 
-
+        return true;
+    }
 
     private void updateSensorMenuItemStatus()
     {
