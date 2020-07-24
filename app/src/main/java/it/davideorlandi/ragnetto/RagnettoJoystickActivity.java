@@ -28,6 +28,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import java.util.Locale;
 import java.util.Set;
 
 import it.davideorlandi.ragnetto.service.BluetoothSerialService;
@@ -51,7 +52,6 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
     private Handler handler;
     private Handler serviceCommunicationHandler;
     private BluetoothSerialService btService;
-    private boolean btServiceBound;
     private ServiceConnection connection = new ServiceConnection()
     {
         @Override
@@ -60,14 +60,13 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
             Log.v(TAG, "onServiceConnected");
             BluetoothSerialService.RagnettoBinder binder = (BluetoothSerialService.RagnettoBinder) service;
             btService = binder.getService(serviceCommunicationHandler);
-            btServiceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className)
         {
             Log.v(TAG, "onServiceDisconnected");
-            btServiceBound = false;
+            btService = null;
         }
 
         @Override
@@ -128,7 +127,6 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
         Log.v(TAG, "onStop");
         super.onStop();
         unbindService(connection);
-        btServiceBound = false;
     }
 
     @Override
@@ -183,14 +181,17 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
                         r = xpri;
                     }
 
-                    txtForward.setText(String.format("%.0f %%", y * 100));
-                    txtSidestep.setText(String.format("%.0f %%", x * 100));
-                    txtRotation.setText(String.format("%.0f %%", r * 100));
+                    txtForward.setText(String.format(Locale.getDefault(), "%.0f %%", y * 100));
+                    txtSidestep.setText(String.format(Locale.getDefault(), "%.0f %%", x * 100));
+                    txtRotation.setText(String.format(Locale.getDefault(), "%.0f %%", r * 100));
 
                     if (btService != null && btService.isConnected())
                     {
-                        String command = String.format("K%d;%d;%d", (int) (y * 100f), (int) (x * 100f), (int) (-r * 100f));
-                        btService.sendCommand(command);
+                        String command = String.format(Locale.getDefault(), "K%d;%d;%d", (int) (y * 100f), (int) (x * 100f), (int) (-r * 100f));
+                        if (btService != null)
+                        {
+                            btService.sendCommand(command);
+                        }
                     }
                 } finally
                 {
