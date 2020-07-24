@@ -31,9 +31,7 @@
     <string name="bt_select_title">Select paired device</string>
     <string name="bt_no_paired_device_title">No paired device</string>
     <string name="bt_no_paired_device_text">Please pair a Ragnetto device using Android bluetooth options before connecting.</string>
-    <string name="bt_no_paired_device_ok">Ok</string>
-    <string name="bt_connection_failed">Bluetooth connection to %1$s failed: %2$s</string>
-    <string name="bt_connected">Connected to %1$s</string>
-    "
+    <string name="bt_no_paired_device_ok">Ok</string>>
+
 
 </resources>
