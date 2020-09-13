@@ -17,9 +17,14 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,9 +41,9 @@ import it.davideorlandi.ragnetto.service.BluetoothSerialService;
 
 public class RagnettoJoystickActivity extends AppCompatActivity implements Handler.Callback
 {
-    private static final String TAG = "RJA";
+    private static final String TAG = "RagnettoJoy.Activity";
     private static final String BUNDLE_ID_SENSOR_ACTIVE = "sensorActive";
-    private static final int JOYSTICK_POLLING_INTERVAL = 50;
+    private static final int JOYSTICK_POLLING_INTERVAL = 100;
     private static final String SWAP_CONTROLS_PREFERENCE_KEY = "invert_rotation_sidestep";
 
     private Menu menu;
@@ -47,6 +52,8 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
     private TextView txtForward;
     private TextView txtSidestep;
     private TextView txtRotation;
+    private TextView terminal;
+    private Spinner mode;
     private boolean swapControls;
     private boolean sensorActive = false;
     private Handler handler;
@@ -60,6 +67,10 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
             Log.v(TAG, "onServiceConnected");
             BluetoothSerialService.RagnettoBinder binder = (BluetoothSerialService.RagnettoBinder) service;
             btService = binder.getService(serviceCommunicationHandler);
+            updateConnectMenuStatus();
+
+            // request configuration when service bound
+            requestConfiguration();
         }
 
         @Override
@@ -73,6 +84,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
         public void onBindingDied(ComponentName name)
         {
             Log.v(TAG, "onBindingDied");
+            btService = null;
         }
     };
 
@@ -96,6 +108,8 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
             sensorActive = false;
         }
 
+        updateConnectMenuStatus();
+
         return true;
     }
 
@@ -110,6 +124,37 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
         txtForward = findViewById(R.id.txt_speed_forward);
         txtRotation = findViewById(R.id.txt_speed_rotation);
         txtSidestep = findViewById(R.id.txt_speed_side);
+        terminal = findViewById(R.id.terminal);
+        mode = findViewById(R.id.mode);
+
+        /* apparently this is needed to enable scrolling, even if the textview
+        has scrollbars="vertical"
+         */
+        terminal.setMovementMethod(new ScrollingMovementMethod());
+
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.modes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mode.setAdapter(adapter);
+        mode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                Log.v(TAG, "mode: onItemSelected (pos.=" + position + ", id=" + id + ")");
+                if (btService != null && btService.isConnected())
+                {
+                    btService.sendCommand(RagnettoConstants.COMMAND_MODE + position);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+                Log.v(TAG, "mode: onNothingSelected");
+            }
+        });
 
         serviceCommunicationHandler = new Handler(Looper.getMainLooper(), this);
 
@@ -119,6 +164,8 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
 
             Log.v(TAG, "Saved sensor state: " + (sensorActive ? "active" : "stopped"));
         }
+
+
     }
 
     @Override
@@ -188,19 +235,19 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
                     if (btService != null && btService.isConnected())
                     {
                         String command = String.format(Locale.getDefault(), "K%d;%d;%d", (int) (y * 100f), (int) (x * 100f), (int) (-r * 100f));
-                        if (btService != null)
-                        {
-                            btService.sendCommand(command);
-                        }
+                        btService.sendCommand(command);
                     }
                 } finally
                 {
                     handler.postDelayed(this, JOYSTICK_POLLING_INTERVAL);
                 }
-
-
             }
         }, JOYSTICK_POLLING_INTERVAL);
+
+        updateConnectMenuStatus();
+
+        // request configuration when resuming
+        requestConfiguration();
     }
 
     @Override
@@ -213,7 +260,8 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
     }
 
     /**
-     * Save state. Necessary because the activity will be recreated by the system when changing orientation.
+     * Save state. Necessary because the activity will be recreated by the system when changing
+     * orientation.
      *
      * @param outState bundle to save to.
      */
@@ -242,7 +290,8 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
     public void onMenuClickTuning(MenuItem item)
     {
         Log.d(TAG, "Tuning menu clicked");
-        // ???????? TODO
+        Intent intent = new Intent(this, RagnettoConfigActivity.class);
+        startActivity(intent);
     }
 
     public void onMenuClickConnect(MenuItem item)
@@ -291,17 +340,22 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
                         i++;
                     }
 
-                    new AlertDialog.Builder(this).setTitle(R.string.bt_select_title).setItems(deviceNames, new DialogInterface.OnClickListener()
+                    if (btService != null)
                     {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
+                        new AlertDialog.Builder(this).setTitle(R.string.bt_select_title).setItems(deviceNames, new DialogInterface.OnClickListener()
                         {
-                            Log.v(TAG, "selected object " + which + ": " + deviceObjects[which]);
-                            btService.connect(deviceObjects[which]);
-                        }
-                    }).show();
-
-
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                Log.v(TAG, "selected object " + which + ": " + deviceObjects[which]);
+                                btService.connect(deviceObjects[which]);
+                            }
+                        }).show();
+                    }
+                    else
+                    {
+                        Log.wtf(TAG, "Service not connected!");
+                    }
                 }
                 else
                 {
@@ -315,14 +369,33 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
 
     public void onMenuClickDisconnect(MenuItem item)
     {
-        btService.disconnect();
+        if (btService != null)
+        {
+            btService.disconnect();
+        }
     }
 
     private void updateConnectMenuStatus()
     {
-        boolean connected = btService.isConnected();
-        menu.findItem(R.id.mi_disconnect).setVisible(connected);
-        menu.findItem(R.id.mi_connect).setVisible(!connected);
+        if (btService != null)
+        {
+            boolean connected = btService.isConnected();
+            Log.d(TAG, "Updating conected status (connected=" + connected + ")");
+            findViewById(R.id.mode).setEnabled(connected);
+            if (menu != null)
+            {
+                menu.findItem(R.id.mi_disconnect).setVisible(connected);
+                menu.findItem(R.id.mi_connect).setVisible(!connected);
+            }
+            else
+            {
+                Log.d(TAG, "(But skipping menu update because menu is null)");
+            }
+        }
+        else
+        {
+            Log.d(TAG, "Update connected status skipped because service is not bound");
+        }
     }
 
     /**
@@ -391,6 +464,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
             case BluetoothSerialService.MESSAGE_TYPE_CONNECTED:
                 Toast.makeText(this, R.string.toast_connected, Toast.LENGTH_SHORT).show();
                 updateConnectMenuStatus();
+                requestConfiguration();
                 break;
             case BluetoothSerialService.MESSAGE_TYPE_DISCONNECTED:
                 Toast.makeText(this, R.string.toast_disconnected, Toast.LENGTH_SHORT).show();
@@ -401,10 +475,18 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
                 updateConnectMenuStatus();
                 break;
             case BluetoothSerialService.MESSAGE_TYPE_VALID_STRING_RECEIVED:
-                Log.d(TAG, "Received from Ragnetto: " + msg.obj);
+                String line = (String) msg.obj;
+                terminal.append(line + "\n");
+                RagnettoConfiguration conf = RagnettoConfiguration.parseLine(line);
+                if (conf != null)
+                {
+                    // update command mode control
+                    mode.setSelection(conf.commandMode, true);
+                }
                 break;
             case BluetoothSerialService.MESSAGE_TYPE_INVALID_STRING_RECEIVED:
-                Log.w(TAG, "Invalid string received from Ragnetto: " + msg.obj);
+                terminal.append("[CHECKSUM FAILED] " + msg.obj + "\n");
+                Toast.makeText(this, getResources().getString(R.string.toast_communication_error, msg.obj), Toast.LENGTH_SHORT).show();
                 break;
             default:
         }
@@ -426,6 +508,17 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
             icon.clearColorFilter();
         }
 
+    }
+
+    /**
+     * Request a configuration dump.
+     */
+    private void requestConfiguration()
+    {
+        if (btService != null && btService.isConnected())
+        {
+            btService.sendCommand(RagnettoConstants.COMMAND_REQUEST_CONFIGURATION);
+        }
     }
 
 }

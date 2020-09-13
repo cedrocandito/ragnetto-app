@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context=".RagnettoConfigActivity">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:text="@string/config_tuning_title" />
+
+        <it.davideorlandi.ragnetto.SeekBarAndValueView
+            android:id="@+id/sb_height_offset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:max="50"
+            app:min="-50"
+            app:title="@string/config_height_offset" />
+
+        <it.davideorlandi.ragnetto.SeekBarAndValueView
+            android:id="@+id/sb_lift_height"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:max="70"
+            app:min="0"
+            app:title="@string/config_lift_height" />
+
+        <it.davideorlandi.ragnetto.SeekBarAndValueView
+            android:id="@+id/sb_max_phase_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:max="2000"
+            app:min="200"
+            app:title="@string/config_max_walk_phase_duration" />
+
+        <it.davideorlandi.ragnetto.SeekBarAndValueView
+            android:id="@+id/sb_leg_lift_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:max="50"
+            app:min="1"
+            app:title="@string/config_leg_lift_duration" />
+
+        <it.davideorlandi.ragnetto.SeekBarAndValueView
+            android:id="@+id/sb_leg_drop_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:max="50"
+            app:min="1"
+            app:title="@string/config_leg_drop_duration" />
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:text="@string/config_trims_title" />
+
+        <LinearLayout
+            android:id="@+id/trims"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:context=".RagnettoConfigActivity">
+
+            <!-- trim controls added dynamically -->
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/config_save" />
+
+        <Button
+            android:id="@+id/btn_reload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/config_reload" />
+
+        <Button
+            android:id="@+id/btn_defaults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/config_defaults" />
+
+    </LinearLayout>
+</ScrollView>

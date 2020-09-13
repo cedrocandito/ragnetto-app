@@ -286,7 +286,7 @@ public class JoystickView extends View implements SensorEventListener
     protected void onDraw(Canvas canvas)
     {
         drawGrid(canvas);
-        canvas.drawCircle(stick_x * r / END_OF_SCALE + cx, -stick_y * r / END_OF_SCALE + cy, stickSize, stickPaint);
+        canvas.drawCircle(stick_x * r / END_OF_SCALE + cx, -stick_y * r / END_OF_SCALE + cy, stickSize / 2, stickPaint);
     }
 
     protected void drawGrid(Canvas canvas)

@@ -12,4 +12,7 @@
     <color name="stick">#B0AE2200</color>
 
     <color name="activeIcon">#008000</color>
+
+    <color name="terminalBackground">#000020</color>
+    <color name="terminalText">#00ff00</color>
 </resources>

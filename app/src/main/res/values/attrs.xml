@@ -18,4 +18,13 @@
             <enum name="xy" value="3" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="SeekBarAndValueView">
+        <!-- min value -->
+        <attr name="min" format="integer" />
+        <!-- max value -->
+        <attr name="max" format="integer" />
+        <!-- title of the control -->
+        <attr name="title" format="string" />
+    </declare-styleable>
 </resources>

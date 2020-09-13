@@ -20,11 +20,20 @@
         <service
             android:name=".service.BluetoothSerialService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".RagnettoSettingsActivity"
-            android:label="@string/title_activity_ragnetto_settings">
+            android:label="@string/ragnetto_settings_activity_title">
+
+            <!-- needed for the "back" arrow in the action bar to work -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".RagnettoJoystickActivity" />
+        </activity>
+        <activity
+            android:name=".RagnettoConfigActivity"
+            android:label="@string/ragnetto_config_activity_title">
 
             <!-- needed for the "back" arrow in the action bar to work -->
             <meta-data

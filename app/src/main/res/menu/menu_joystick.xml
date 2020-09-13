@@ -30,5 +30,5 @@
         android:icon="@drawable/ic_settings"
         android:onClick="onMenuClickSettings"
         android:title="@string/settings"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

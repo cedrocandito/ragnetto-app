@@ -16,6 +16,14 @@
     <!-- Note: if layout width and height are not defined in the include command,
     other attribute overrides are ignored -->
 
+    <Spinner
+        android:id="@+id/mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="11sp"
+        app:layout_constraintStart_toStartOf="@id/primaryJoystick"
+        app:layout_constraintTop_toTopOf="@id/primaryJoystick" />
+
     <it.davideorlandi.ragnetto.JoystickView
         android:id="@+id/primaryJoystick"
         android:layout_width="0dp"
@@ -36,12 +44,12 @@
     <it.davideorlandi.ragnetto.JoystickView
         android:id="@+id/secondaryJoystick"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="@dimen/stick_size"
         android:padding="@dimen/joystick_padding"
         app:gridBackgroundColor="@color/joystick_background"
         app:gridForegroundColor="@color/joystick_grid"
         app:gridForegroundStrokeWidth="@dimen/joystick_stroke_width"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/terminal"
         app:layout_constraintHeight_percent=".4"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -49,5 +57,22 @@
         app:stickColor="@color/stick"
         app:stickSize="@dimen/stick_size"
         app:type="x" />
+
+    <TextView
+        android:id="@+id/terminal"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="0dp"
+        android:background="@color/terminalBackground"
+        android:freezesText="true"
+        android:gravity="start|bottom"
+        android:padding="0dp"
+        android:scrollbars="vertical"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/terminalText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/secondaryJoystick"
+        app:layout_constraintStart_toStartOf="@id/secondaryJoystick"
+        app:layout_constraintTop_toBottomOf="@id/secondaryJoystick" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

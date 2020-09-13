@@ -199,12 +199,12 @@ public class BluetoothSerialService extends Service implements Runnable
                 if (checked != null)
                 {
                     Log.d(TAG, "Received verified line: " + checked);
-                    sendMessageToActivity(MESSAGE_TYPE_INVALID_STRING_RECEIVED, checked);
+                    sendMessageToActivity(MESSAGE_TYPE_VALID_STRING_RECEIVED, checked);
                 }
                 else
                 {
                     sendMessageToActivity(MESSAGE_TYPE_INVALID_STRING_RECEIVED, line);
-                    Log.d(TAG, "Received NOT verified line: " + line);
+                    Log.w(TAG, "Received NOT verified line: " + line);
                 }
             }
         } catch (IOException ioe)
