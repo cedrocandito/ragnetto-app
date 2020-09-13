@@ -93,9 +93,6 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
     {
         Log.d(TAG, "Creating menu");
         this.menu = menu;
-        /* (Nota: se non trova menu in R bisogna selezionare
-           File->Invalidate caches/restart. Android studio è una
-           vera merda! */
         getMenuInflater().inflate(R.menu.menu_joystick, menu);
 
         if (primaryJoystick.isSensorAvailable())
@@ -145,6 +142,7 @@ public class RagnettoJoystickActivity extends AppCompatActivity implements Handl
                 Log.v(TAG, "mode: onItemSelected (pos.=" + position + ", id=" + id + ")");
                 if (btService != null && btService.isConnected())
                 {
+                    Log.i(TAG, "Sending mode change to " + position);
                     btService.sendCommand(RagnettoConstants.COMMAND_MODE + position);
                 }
             }

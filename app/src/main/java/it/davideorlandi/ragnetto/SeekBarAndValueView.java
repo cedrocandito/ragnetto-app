@@ -21,11 +21,12 @@ public class SeekBarAndValueView extends LinearLayout
     private Button v_plus;
     private Button v_minus;
 
+    private OnSeekBarAndValueChangeListener listener = null;
 
     private int min;
     private int max;
 
-    private boolean userIsMovineSeekBar;
+    private boolean userIsMovingSeekBar;
 
     public SeekBarAndValueView(Context context)
     {
@@ -70,19 +71,23 @@ public class SeekBarAndValueView extends LinearLayout
                 if (fromUser)
                 {
                     v_value.setText(String.valueOf(getProgress()));
+                    if (listener != null)
+                    {
+                        listener.onProgressChanged(SeekBarAndValueView.this, getProgress());
+                    }
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar)
             {
-                userIsMovineSeekBar = true;
+                userIsMovingSeekBar = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar)
             {
-                userIsMovineSeekBar = false;
+                userIsMovingSeekBar = false;
             }
         });
 
@@ -93,7 +98,14 @@ public class SeekBarAndValueView extends LinearLayout
             {
                 int progress = getProgress();
                 if (progress <= max)
-                    setProgress(++progress);
+                {
+                    setProgress(++progress, false);
+                    if (listener != null)
+                    {
+                        listener.onProgressChanged(SeekBarAndValueView.this, getProgress());
+                    }
+                }
+
             }
         });
 
@@ -104,7 +116,13 @@ public class SeekBarAndValueView extends LinearLayout
             {
                 int progress = getProgress();
                 if (progress >= min)
-                    setProgress(--progress);
+                {
+                    setProgress(--progress, false);
+                    if (listener != null)
+                    {
+                        listener.onProgressChanged(SeekBarAndValueView.this, getProgress());
+                    }
+                }
             }
         });
     }
@@ -146,11 +164,18 @@ public class SeekBarAndValueView extends LinearLayout
         return v_seekBar.getProgress() + min;
     }
 
-
-    public void setProgress(int progress)
+    public void setProgress(int progress, boolean evenIfUserIsMovingSeekBar)
     {
-        v_seekBar.setProgress(progress - min);
-        updateTextValue();
+        if (evenIfUserIsMovingSeekBar || !userIsMovingSeekBar)
+        {
+            v_seekBar.setProgress(progress - min);
+            updateTextValue();
+        }
+    }
+
+    public void setChangeListener(OnSeekBarAndValueChangeListener newListener)
+    {
+        listener = newListener;
     }
 
     private void updateMinMax()
@@ -161,5 +186,10 @@ public class SeekBarAndValueView extends LinearLayout
     private void updateTextValue()
     {
         v_value.setText(String.valueOf(getProgress()));
+    }
+
+    public interface OnSeekBarAndValueChangeListener
+    {
+        void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress);
     }
 }

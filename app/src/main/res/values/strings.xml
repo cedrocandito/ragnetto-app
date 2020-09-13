@@ -48,6 +48,7 @@
     <string name="config_save">Save configuration to EEPROM</string>
     <string name="config_reload">Reload configuration from EEPROM</string>
     <string name="config_defaults">Use default values</string>
+    <string name="config_not_yet_implemented">Not yet implemented in firmware!</string>
 
     <!-- other -->
     <string name="bt_not_available_title">Bluetooth not available</string>

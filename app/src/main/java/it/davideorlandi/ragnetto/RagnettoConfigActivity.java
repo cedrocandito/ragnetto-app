@@ -69,12 +69,51 @@ public class RagnettoConfigActivity extends AppCompatActivity implements Handler
         setContentView(R.layout.ragnetto_config_activity);
 
         height_offset = findViewById(R.id.sb_height_offset);
+        height_offset.setChangeListener(new SeekBarAndValueView.OnSeekBarAndValueChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress)
+            {
+                sendCommandIfConnected(RagnettoConstants.COMMAND_HEIGHT_OFFSET + seekBarAndValue.getProgress());
+            }
+        });
+
         lift_height = findViewById(R.id.sb_lift_height);
+        lift_height.setChangeListener(new SeekBarAndValueView.OnSeekBarAndValueChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress)
+            {
+                sendCommandIfConnected(RagnettoConstants.COMMAND_LIFT_HEIGHT + seekBarAndValue.getProgress());
+            }
+        });
+
         max_phase_duration = findViewById(R.id.sb_max_phase_duration);
+        max_phase_duration.setChangeListener(new SeekBarAndValueView.OnSeekBarAndValueChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress)
+            {
+                sendCommandIfConnected(RagnettoConstants.COMMAND_MAX_PHASE_DURATION + seekBarAndValue.getProgress());
+            }
+        });
+
         leg_lift_duration = findViewById(R.id.sb_leg_lift_duration);
         leg_drop_duration = findViewById(R.id.sb_leg_drop_duration);
+        // one listener for both controls
+        SeekBarAndValueView.OnSeekBarAndValueChangeListener liftDropListener = new SeekBarAndValueView.OnSeekBarAndValueChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress)
+            {
+                sendCommandIfConnected(RagnettoConstants.COMMAND_LEG_LIFT_AND_DROP_DURATION + leg_lift_duration.getProgress() + ";" + leg_drop_duration.getProgress());
+            }
+        };
+        leg_lift_duration.setChangeListener(liftDropListener);
+        leg_drop_duration.setChangeListener(liftDropListener);
 
         trims = new SeekBarAndValueView[RagnettoConstants.NUM_LEGS][RagnettoConstants.NUM_JOINTS];
+
 
         LinearLayout trimsLayout = findViewById(R.id.trims);
         for (int l = 0; l < RagnettoConstants.NUM_LEGS; l++)
@@ -83,10 +122,19 @@ public class RagnettoConfigActivity extends AppCompatActivity implements Handler
             {
                 SeekBarAndValueView trim = new SeekBarAndValueView(this);
                 trim.setId(View.generateViewId());
-                trim.setMin(-40);
-                trim.setMax(40);
-                trim.setProgress(0);
+                trim.setMin(-128);
+                trim.setMax(127);
+                trim.setProgress(0, false);
                 trim.setTitle(getResources().getString(R.string.config_trim_joint_title, l + 1, j + 1));
+                trim.setChangeListener(new TrimChageListener(l, j));
+                SeekBarAndValueView.OnSeekBarAndValueChangeListener trimListener = new SeekBarAndValueView.OnSeekBarAndValueChangeListener()
+                {
+                    @Override
+                    public void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress)
+                    {
+                        sendCommandIfConnected(RagnettoConstants.COMMAND_TRIM + seekBarAndValue.getProgress());
+                    }
+                };
                 trimsLayout.addView(trim);
                 trims[l][j] = trim;
             }
@@ -163,16 +211,16 @@ public class RagnettoConfigActivity extends AppCompatActivity implements Handler
                 if (conf != null)
                 {
                     // update controls
-                    height_offset.setProgress(conf.heightOffset);
-                    lift_height.setProgress(conf.liftHeight);
-                    max_phase_duration.setProgress(conf.maxPhaseDuration);
-                    leg_lift_duration.setProgress(conf.legLiftDurationPercent);
-                    leg_drop_duration.setProgress(conf.legDropDurationPercent);
+                    height_offset.setProgress(conf.heightOffset, false);
+                    lift_height.setProgress(conf.liftHeight, false);
+                    max_phase_duration.setProgress(conf.maxPhaseDuration, false);
+                    leg_lift_duration.setProgress(conf.legLiftDurationPercent, false);
+                    leg_drop_duration.setProgress(conf.legDropDurationPercent, false);
                     for (int l = 0; l < RagnettoConstants.NUM_LEGS; l++)
                     {
                         for (int j = 0; j < RagnettoConstants.NUM_JOINTS; j++)
                         {
-                            trims[l][j].setProgress(conf.trim[l][j]);
+                            trims[l][j].setProgress(conf.trim[l][j], false);
                         }
                     }
                 }
@@ -187,13 +235,79 @@ public class RagnettoConfigActivity extends AppCompatActivity implements Handler
     }
 
     /**
+     * Click on the read configuration button.
+     *
+     * @param view clicked button.
+     */
+    public void buttonOnCkickReadConfiguration(View view)
+    {
+        sendCommandIfConnected(RagnettoConstants.COMMAND_READ);
+        // request a configuration dump to update views
+        requestConfiguration();
+    }
+
+    /**
+     * Click on the write configuration button.
+     *
+     * @param view clicked button.
+     */
+    public void buttonOnCkickWriteConfiguration(View view)
+    {
+        sendCommandIfConnected(RagnettoConstants.COMMAND_WRITE);
+        /* request a configuration dump to update views; not really needed, but doesn't harm either */
+        requestConfiguration();
+    }
+
+    /**
+     * Click on the reset configuration to default values.
+     *
+     * @param view clicked button.
+     */
+    public void buttonOnCkickDefaultConfiguration(View view)
+    {
+        // TODO: to be implemented!
+        Toast.makeText(this, R.string.config_not_yet_implemented, Toast.LENGTH_LONG).show();
+        //sendCommandIfConnected(RagnettoConstants.COMMAND_RESET_TO_DEFAULT);
+        /* request a configuration dump to update views */
+        //requestConfiguration();
+    }
+
+    /**
      * Request a configuration dump.
      */
     private void requestConfiguration()
     {
+        sendCommandIfConnected(RagnettoConstants.COMMAND_REQUEST_CONFIGURATION);
+    }
+
+    /**
+     * Send a command but only if the robot is connected (do nothing if not).
+     *
+     * @param command command to be sent.
+     */
+    private void sendCommandIfConnected(String command)
+    {
         if (btService != null && btService.isConnected())
         {
-            btService.sendCommand(RagnettoConstants.COMMAND_REQUEST_CONFIGURATION);
+            btService.sendCommand(command);
+        }
+    }
+
+    private class TrimChageListener implements SeekBarAndValueView.OnSeekBarAndValueChangeListener
+    {
+        private final int leg;
+        private final int joint;
+
+        public TrimChageListener(int leg, int joint)
+        {
+            this.leg = leg;
+            this.joint = joint;
+        }
+
+        @Override
+        public void onProgressChanged(SeekBarAndValueView seekBarAndValue, int progress)
+        {
+            sendCommandIfConnected(RagnettoConstants.COMMAND_TRIM + leg + ";" + joint + ";" + seekBarAndValue.getProgress());
         }
     }
 }

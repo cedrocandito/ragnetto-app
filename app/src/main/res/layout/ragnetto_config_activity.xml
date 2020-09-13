@@ -82,6 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:onClick="buttonOnCkickWriteConfiguration"
             android:text="@string/config_save" />
 
         <Button
@@ -89,6 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:onClick="buttonOnCkickReadConfiguration"
             android:text="@string/config_reload" />
 
         <Button
@@ -96,6 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:onClick="buttonOnCkickDefaultConfiguration"
             android:text="@string/config_defaults" />
 
     </LinearLayout>
